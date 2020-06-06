@@ -1,12 +1,11 @@
 // require the discord.js module
-const Discord = require('discord.js');
-
-// require the firebase admin module
-var FirebaseAdmin = require('firebase-admin');
+const Discord = require("discord.js");
 
 // Module to read environment variables easily
-const dotenv = require('dotenv');
+const dotenv = require("dotenv");
 dotenv.config();
+
+const FirebaseHelpers = require("./firebasehelpers");
 
 /*
  * FIREBASE
@@ -22,12 +21,13 @@ const client = new Discord.Client();
 
 // when the client is ready, run this code
 // this event will only trigger one time after logging in
-client.once('ready', () => {
-	console.log('Ready!');
+client.once("ready", () => {
+  console.log("Ready!");
+  FirebaseHelpers.testLog();
 });
 
-client.on('message', (message) => {
-	console.log(message.content);
+client.on("message", (message) => {
+  console.log(message.content);
 });
 
 // login to Discord with your app's token
