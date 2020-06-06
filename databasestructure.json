@@ -1,0 +1,24 @@
+{
+	"servers": {
+		"SERVER1": true,
+		"SERVER2": true
+	},
+	"SERVER1": {
+		"channels": {
+			"CHAN1": true
+		},
+		"users": {
+			"USER1 0000": true
+		}
+	},
+	"SERVER1 CHAN1": {
+		"messages": {
+			"m1": {
+				"id": "1",
+				"sender": "USER1 0000",
+				"mlen": "50",
+				"timestamp": "XXXXYYZZ"
+			}
+		}
+	}
+}
