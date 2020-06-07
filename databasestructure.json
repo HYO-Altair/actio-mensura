@@ -1,0 +1,13 @@
+{
+  "servers": {
+    "SERVER ID": "Server Name"
+  },
+  "Server Name": {
+    "days": {
+      "day-timestamp": ""
+    },
+    "users": {
+      "USER1 0000": 0
+    }
+  }
+}
