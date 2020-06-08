@@ -29,7 +29,7 @@ client.on("message", (message) => {
         message.guild.name,
         message.content.substr(prefix.length + 7)
       );
-      message.reply(response);
+      message.reply(JSON.stringify(response));
     };
     entriesFunction();
   } else if (!message.author.bot) {

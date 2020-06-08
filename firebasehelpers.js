@@ -67,7 +67,7 @@ function addServer(serverID, serverName, user) {
 // Then increments the overall message count for a particular user.
 async function addMessage(serverName, user) {
   let path = `${serverName}/days/${getDateString()}`;
-  console.log("path is " + path);
+
   // get current value
   let curr = await db
     .ref(path)
@@ -97,7 +97,6 @@ async function addMessage(serverName, user) {
 
 async function numEntries(serverName, dateString) {
   let path = serverName + "/days/" + dateString;
-  console.log("other path is " + path);
 
   // find number at date
   let result = "n/a";
@@ -105,8 +104,7 @@ async function numEntries(serverName, dateString) {
     .ref(path)
     .once("value")
     .then((snapshot) => {
-      console.log("ss val is " + snapshot.val());
-      return snapshot.val().toString();
+      return snapshot.val();
     });
 
   return result;
