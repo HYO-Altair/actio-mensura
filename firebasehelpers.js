@@ -26,6 +26,13 @@ async function testLog() {
   console.log(rules);
 }
 
+// returns date in //mmmddyyyyy format ie Jun072020
+function getDateString() {
+  let currentDate = new Date(Date.now());
+  return currentDate.toDateString().replace(/\s+/g, "").substr(3);
+  // replace gets rid of white space inside string
+}
+
 function resetDB() {
   db.ref("/").set(DBStructure);
 }
@@ -43,19 +50,46 @@ function addServer(serverID, serverName, user) {
 
   // Create Object for Message Counter
   let object = { days: {}, users: {} };
-  let date_key = Date.now();
+  let date_key = getDateString();
   let user_key = (user + "").replace("#", "-");
 
-  object.days[date_key] = 1;
+  object.days[date_key] = { messages: {} };
   object.users[user_key] = 1;
 
   // Create the object at root
   db.ref(`/${serverName}`).set(object);
 }
+function addMessage(serverName, user, message, createdTimestamp) {
+  // create object for Message
+  let object = { user: "", mlen: "", createdTimestamp };
+  object["user"] = user.replace("#", "-");
+  object["mlen"] = message.length;
 
+  let path = serverName + "/days/" + getDateString() + "/messages";
+  // create entry and append message
+  db.ref(path).push(object);
+}
+
+async function numEntries(serverName, dateString) {
+  let path = serverName + "/days/" + dateString + "/messages";
+  // check if entry exists for date
+  db.ref(path)
+    .once("value")
+    .then((snapshot) => {
+      if (snapshot.numChildren() > 0) {
+        return snapshot.numChildren() + " entries on " + dateString;
+      } else {
+        return `No entries found for ${dateString}; check your formatting? It should be something similar to Jun072020`;
+      }
+    });
+  return "oop" + dateString + path;
+}
 module.exports = {
+  getDateString,
   testLog,
   resetDB,
   serverExists,
   addServer,
+  addMessage,
+  numEntries,
 };
