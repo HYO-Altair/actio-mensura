@@ -48,12 +48,7 @@ client.on("message", (message) => {
       let exists = await FirebaseHelpers.serverExists(message.guild.id);
       if (exists) {
         message.reply("You exist");
-        FirebaseHelpers.addMessage(
-          message.guild.name,
-          message.member.user.tag,
-          message.content,
-          message.createdTimestamp
-        );
+        FirebaseHelpers.addMessage(message.guild.name);
       } else {
         message.reply("You don't exist");
         FirebaseHelpers.addServer(

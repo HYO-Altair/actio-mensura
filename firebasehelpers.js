@@ -53,36 +53,41 @@ function addServer(serverID, serverName, user) {
   let date_key = getDateString();
   let user_key = (user + "").replace("#", "-");
 
-  object.days[date_key] = { messages: {} };
+  object.days[date_key] = 1;
   object.users[user_key] = 1;
 
   // Create the object at root
   db.ref(`/${serverName}`).set(object);
 }
-function addMessage(serverName, user, message, createdTimestamp) {
-  // create object for Message
-  let object = { user: "", mlen: "", createdTimestamp };
-  object["user"] = user.replace("#", "-");
-  object["mlen"] = message.length;
-
-  let path = serverName + "/days/" + getDateString() + "/messages";
-  // create entry and append message
-  db.ref(path).push(object);
+async function addMessage(serverName) {
+  let path = serverName + "/days/" + getDateString();
+  console.log("path is " + path);
+  // get current value
+  let curr = await db
+    .ref(path)
+    .once("value")
+    .then((snapshot) => {
+      return snapshot.val();
+    });
+  // increment current value
+  db.ref(path).set(curr + 1);
 }
 
 async function numEntries(serverName, dateString) {
-  let path = serverName + "/days/" + dateString + "/messages";
-  // check if entry exists for date
-  db.ref(path)
+  let path = serverName + "/days/" + dateString;
+  console.log("other path is " + path);
+
+  // find number at date
+  let result = "n/a";
+  result = await db
+    .ref(path)
     .once("value")
     .then((snapshot) => {
-      if (snapshot.numChildren() > 0) {
-        return snapshot.numChildren() + " entries on " + dateString;
-      } else {
-        return `No entries found for ${dateString}; check your formatting? It should be something similar to Jun072020`;
-      }
+      console.log("ss val is " + snapshot.val());
+      return snapshot.val().toString();
     });
-  return "oop" + dateString + path;
+
+  return result;
 }
 module.exports = {
   getDateString,
