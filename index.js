@@ -23,19 +23,17 @@ client.on("message", (message) => {
     message.reply(`Your access code is ${message.guild.id}`);
   } else if (message.content === `${prefix}reset`) {
     FirebaseHelpers.resetDB();
-  } else if (
-    message.content.substr(0, prefix.length + 8) === `${prefix}entries `
-  ) {
+  } else if (message.content.startsWith(`${prefix}entries`)) {
     const entriesFunction = async () => {
       let response = await FirebaseHelpers.numEntries(
         message.guild.name,
-        message.content.substr(prefix.length + 8)
+        message.content.substr(prefix.length + 7)
       );
       message.reply(response);
     };
     entriesFunction();
   } else if (!message.author.bot) {
-    const existsFunction = async () => {
+    const checkIfServerExistsAndIncrementOrCreate = async () => {
       let exists = await FirebaseHelpers.serverExists(message.guild.id);
       if (exists) {
         FirebaseHelpers.addMessage(message.guild.name, message.member.user.tag);
@@ -47,7 +45,7 @@ client.on("message", (message) => {
         );
       }
     };
-    existsFunction();
+    checkIfServerExistsAndIncrementOrCreate();
   }
 });
 
