@@ -28,30 +28,33 @@ async function testLog() {
 
 // returns date in //mmmddyyyyy format ie Jun072020
 function getDateString() {
-  let currentDate = new Date(Date.now());
+  const currentDate = new Date(Date.now());
   return currentDate.toDateString().replace(/\s+/g, "").substr(3);
   // replace gets rid of white space inside string
 }
 
+// Clears Database and resets to structure in databasestructure.json
 function resetDB() {
   db.ref("/").set(DBStructure);
 }
 
 async function serverExists(serverID) {
-  let result = await (
+  const result = await (
     await db.ref(`servers/${serverID}`).once("value")
   ).exists();
   return result;
 }
 
+// Creates a key value pair of the form {server id: server name} in the server list
+// Then creates an entry for the server containing the number of messages every day.
 function addServer(serverID, serverName, user) {
   // First add key in Server List
   db.ref(`servers/${serverID}`).set(serverName);
 
   // Create Object for Message Counter
-  let object = { days: {}, users: {} };
-  let date_key = getDateString();
-  let user_key = (user + "").replace("#", "-");
+  const object = { days: {}, users: {} };
+  const date_key = getDateString();
+  const user_key = (user + "").replace("#", "-"); // # not allowed in Firebase keys
 
   object.days[date_key] = 1;
   object.users[user_key] = 1;
@@ -59,35 +62,35 @@ function addServer(serverID, serverName, user) {
   // Create the object at root
   db.ref(`/${serverName}`).set(object);
 }
-async function addMessage(serverName) {
-  let path = serverName + "/days/" + getDateString();
-  console.log("path is " + path);
+
+// Increments the message count for the particular day
+// Then increments the overall message count for a particular user.
+async function addMessage(serverName, user) {
+  const dayPath = `${serverName}/days/${getDateString()}`;
+
   // get current value
-  let curr = await db
-    .ref(path)
-    .once("value")
-    .then((snapshot) => {
-      return snapshot.val();
-    });
+  const dayCurr = await (await db.ref(dayPath).once("value")).val();
+
   // increment current value
-  db.ref(path).set(curr + 1);
+  db.ref(dayPath).set(dayCurr + 1);
+
+  // Now do the same for particular user
+  const userKey = (user + "").replace("#", "-");
+
+  const userPath = `${serverName}/users/${userKey}`;
+
+  // get current value
+  const userCurr = await (await db.ref(userPath).once("value")).val();
+
+  // increment current value
+  db.ref(userPath).set(userCurr + 1);
 }
 
 async function numEntries(serverName, dateString) {
-  let path = serverName + "/days/" + dateString;
-  console.log("other path is " + path);
+  const path = serverName + "/days/" + dateString;
 
-  // find number at date
-  let result = "n/a";
-  result = await db
-    .ref(path)
-    .once("value")
-    .then((snapshot) => {
-      console.log("ss val is " + snapshot.val());
-      return snapshot.val().toString();
-    });
-
-  return result;
+  // return number at date
+  return (await (await db.ref(path).once("value")).val()) || "No Data";
 }
 module.exports = {
   getDateString,

@@ -7,15 +7,6 @@ dotenv.config();
 
 const FirebaseHelpers = require("./firebasehelpers");
 
-/*
- * FIREBASE
- */
-// firebase code currently being tested in dbtest.js
-
-/*
- * DISCORD
- */
-
 // create a new Discord client
 const client = new Discord.Client();
 
@@ -27,38 +18,40 @@ client.once("ready", () => {
   console.log("Ready!");
 });
 
-client.on("message", (message) => {
-  if (message.content === `${prefix}code`) {
-    message.reply(`Your access code is ${message.guild.id}`);
-  } else if (message.content === `${prefix}reset`) {
-    FirebaseHelpers.resetDB();
-  } else if (
-    message.content.substr(0, prefix.length + 8) === `${prefix}entries `
-  ) {
-    const entriesFunction = async () => {
-      let response = await FirebaseHelpers.numEntries(
+client.on("message", async (message) => {
+  // Do nothing if it is a bot message
+  if (message.author.bot) {
+    return;
+  }
+
+  switch (message.content) {
+    case `${prefix}code`:
+      message.reply(`Your access code is ${message.guild.id}`);
+      break;
+
+    case `${prefix}reset`:
+      FirebaseHelpers.resetDB();
+      break;
+
+    case `${prefix}entries`:
+      const response = await FirebaseHelpers.numEntries(
         message.guild.name,
-        message.content.substr(prefix.length + 8)
+        message.content.substr(prefix.length + 7) // 7 represents length of string "entries"
       );
-      message.reply(response);
-    };
-    entriesFunction();
-  } else if (!message.author.bot) {
-    const existsFunction = async () => {
-      let exists = await FirebaseHelpers.serverExists(message.guild.id);
+      message.reply(JSON.stringify(response));
+      break;
+
+    default:
+      const exists = await FirebaseHelpers.serverExists(message.guild.id);
       if (exists) {
-        message.reply("You exist");
-        FirebaseHelpers.addMessage(message.guild.name);
+        FirebaseHelpers.addMessage(message.guild.name, message.member.user.tag);
       } else {
-        message.reply("You don't exist");
         FirebaseHelpers.addServer(
           message.guild.id,
           message.guild.name,
           message.member.user.tag
         );
       }
-    };
-    existsFunction();
   }
 });
 
