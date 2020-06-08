@@ -7,15 +7,6 @@ dotenv.config();
 
 const FirebaseHelpers = require("./firebasehelpers");
 
-/*
- * FIREBASE
- */
-// firebase code currently being tested in dbtest.js
-
-/*
- * DISCORD
- */
-
 // create a new Discord client
 const client = new Discord.Client();
 
@@ -47,10 +38,8 @@ client.on("message", (message) => {
     const existsFunction = async () => {
       let exists = await FirebaseHelpers.serverExists(message.guild.id);
       if (exists) {
-        message.reply("You exist");
-        FirebaseHelpers.addMessage(message.guild.name);
+        FirebaseHelpers.addMessage(message.guild.name, message.member.user.tag);
       } else {
-        message.reply("You don't exist");
         FirebaseHelpers.addServer(
           message.guild.id,
           message.guild.name,

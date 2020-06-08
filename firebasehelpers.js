@@ -33,6 +33,7 @@ function getDateString() {
   // replace gets rid of white space inside string
 }
 
+// Clears Database and resets to structure in databasestructure.json
 function resetDB() {
   db.ref("/").set(DBStructure);
 }
@@ -44,6 +45,8 @@ async function serverExists(serverID) {
   return result;
 }
 
+// Creates a key value pair of the form {server id: server name} in the server list
+// Then creates an entry for the server containing the number of messages every day.
 function addServer(serverID, serverName, user) {
   // First add key in Server List
   db.ref(`servers/${serverID}`).set(serverName);
@@ -51,7 +54,7 @@ function addServer(serverID, serverName, user) {
   // Create Object for Message Counter
   let object = { days: {}, users: {} };
   let date_key = getDateString();
-  let user_key = (user + "").replace("#", "-");
+  let user_key = (user + "").replace("#", "-"); // # not allowed in Firebase keys
 
   object.days[date_key] = 1;
   object.users[user_key] = 1;
@@ -59,8 +62,11 @@ function addServer(serverID, serverName, user) {
   // Create the object at root
   db.ref(`/${serverName}`).set(object);
 }
-async function addMessage(serverName) {
-  let path = serverName + "/days/" + getDateString();
+
+// Increments the message count for the particular day
+// Then increments the overall message count for a particular user.
+async function addMessage(serverName, user) {
+  let path = `${serverName}/days/${getDateString()}`;
   console.log("path is " + path);
   // get current value
   let curr = await db
@@ -69,6 +75,22 @@ async function addMessage(serverName) {
     .then((snapshot) => {
       return snapshot.val();
     });
+  // increment current value
+  db.ref(path).set(curr + 1);
+
+  // Now do the same for particular user
+  let user_key = (user + "").replace("#", "-");
+
+  path = `${serverName}/users/${user_key}`;
+
+  // get current value
+  curr = await db
+    .ref(path)
+    .once("value")
+    .then((snapshot) => {
+      return snapshot.val();
+    });
+
   // increment current value
   db.ref(path).set(curr + 1);
 }
