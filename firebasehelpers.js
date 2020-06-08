@@ -26,6 +26,13 @@ async function testLog() {
   console.log(rules);
 }
 
+// returns date in //mmmddyyyyy format ie Jun072020
+function getDateString() {
+  let currentDate = new Date(Date.now());
+  return currentDate.toDateString().replace(/\s+/g, "").substr(3);
+  // replace gets rid of white space inside string
+}
+
 function resetDB() {
   db.ref("/").set(DBStructure);
 }
@@ -43,7 +50,7 @@ function addServer(serverID, serverName, user) {
 
   // Create Object for Message Counter
   let object = { days: {}, users: {} };
-  let date_key = Date.now();
+  let date_key = getDateString();
   let user_key = (user + "").replace("#", "-");
 
   object.days[date_key] = 1;
@@ -52,10 +59,42 @@ function addServer(serverID, serverName, user) {
   // Create the object at root
   db.ref(`/${serverName}`).set(object);
 }
+async function addMessage(serverName) {
+  let path = serverName + "/days/" + getDateString();
+  console.log("path is " + path);
+  // get current value
+  let curr = await db
+    .ref(path)
+    .once("value")
+    .then((snapshot) => {
+      return snapshot.val();
+    });
+  // increment current value
+  db.ref(path).set(curr + 1);
+}
 
+async function numEntries(serverName, dateString) {
+  let path = serverName + "/days/" + dateString;
+  console.log("other path is " + path);
+
+  // find number at date
+  let result = "n/a";
+  result = await db
+    .ref(path)
+    .once("value")
+    .then((snapshot) => {
+      console.log("ss val is " + snapshot.val());
+      return snapshot.val().toString();
+    });
+
+  return result;
+}
 module.exports = {
+  getDateString,
   testLog,
   resetDB,
   serverExists,
   addServer,
+  addMessage,
+  numEntries,
 };
