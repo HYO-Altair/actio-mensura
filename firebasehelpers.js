@@ -1,3 +1,6 @@
+var moment = require("moment"); // require
+moment().format();
+
 /*
   Info Needed:
     * Number of Messages over time (Let's make the separation days for now)
@@ -28,8 +31,9 @@ async function testLog() {
 
 // returns date in //mmmddyyyyy format ie Jun072020
 function getDateString() {
-  const currentDate = new Date(Date.now());
-  return currentDate.toDateString().replace(/\s+/g, "").substr(3);
+  const day = new Date();
+  const currentDate = moment(day).format("LL");
+  return currentDate;
   // replace gets rid of white space inside string
 }
 
