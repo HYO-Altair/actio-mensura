@@ -18,7 +18,7 @@ dotenv.config();
 const serviceAccountKey = process.env.PATH_TO_FIREBASE_KEY;
 const Firebase = FirebaseAdmin.initializeApp({
   credential: FirebaseAdmin.credential.cert(
-    JSON.parse(serviceAccountKey.replace(/\\n/g, "\n"))
+    serviceAccountKey.replace(/\\n/g, "\n")
   ), // references process.env.GOOGLE_APPLICATION_CREDENTIALS
   databaseURL: "https://actio-mensura.firebaseio.com",
 });
