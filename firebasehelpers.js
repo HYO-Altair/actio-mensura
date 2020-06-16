@@ -17,7 +17,7 @@ dotenv.config();
 // Initialize Firebase
 const Firebase = FirebaseAdmin.initializeApp({
   credential: FirebaseAdmin.credential.cert({
-    private_key: process.env.FIREBASE_PRIVATE_KEY,
+    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
     client_email: process.env.FIREBASE_CLIENT_EMAIL,
     project_id: "actio-mensura",
   }), // references process.env.GOOGLE_APPLICATION_CREDENTIALS
